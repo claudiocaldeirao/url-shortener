@@ -19,19 +19,19 @@ func main() {
 	db := db.GetDB()
 
 	// @todo: should get code from GET route
-	shortCode, err := GetUrl("abcedf", db)
+	shortUrl, err := GetUrl("abcedf", db)
 
 	if err != nil {
 		log.Println(err)
 	}
 
-	fmt.Println(shortCode)
+	fmt.Println(shortUrl)
 }
 
-func GetUrl(code string, db *dynamodb.DynamoDB) (*model.ShortCode, error) {
+func GetUrl(code string, db *dynamodb.DynamoDB) (*model.ShortUrl, error) {
 	params := &dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
-			"shortCode": {
+			"shortUrl": {
 				S: aws.String(code),
 			},
 		},
@@ -45,7 +45,30 @@ func GetUrl(code string, db *dynamodb.DynamoDB) (*model.ShortCode, error) {
 		return nil, err
 	}
 
-	var shortCode *model.ShortCode
-	err = dynamodbattribute.UnmarshalMap(resp.Item, &shortCode)
-	return shortCode, err
+	var shortUrl *model.ShortUrl
+	err = dynamodbattribute.UnmarshalMap(resp.Item, &shortUrl)
+	return shortUrl, err
+}
+
+func PostUrl(hash string, url string, db *dynamodb.DynamoDB) (*model.ShortUrl, error) {
+	shortUrl := model.ShortUrl{
+		Hash: hash,
+		Url:  url,
+	}
+
+	serializedShortUrl, err := dynamodbattribute.MarshalMap(shortUrl)
+
+	if err != nil {
+		return nil, err
+	}
+
+	params := &dynamodb.PutItemInput{
+		Item:      serializedShortUrl,
+		TableName: aws.String(os.Getenv("AWS_DYNAMO_DB_TABLE")),
+	}
+
+	if _, err := db.PutItem(params); err != nil {
+		return nil, err
+	}
+	return &shortUrl, nil
 }
