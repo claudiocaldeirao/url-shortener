@@ -1,0 +1,12 @@
+# files
+.env
+bootstrap
+lambda.zip
+terraform.tfstate
+terraform.tfstate.backup
+
+# folders
+.aws-sam
+.terraform
+venv
+build
