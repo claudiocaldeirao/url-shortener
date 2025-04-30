@@ -22,6 +22,11 @@ type ShortenRequest struct {
 	Url string `json:"url"`
 }
 
+type ShortenResponse struct {
+	ShortUrl string `json:"url"`
+	Hash     string `json:"hash"`
+}
+
 func main() {
 	lambda.Start(handler)
 }
@@ -55,10 +60,15 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			}, nil
 		}
 
+		// @todo: replace with host environment variable
+		shortUrl := fmt.Sprintf("http://localhost:4566/%s", hash)
+		resp := ShortenResponse{Hash: hash, ShortUrl: shortUrl}
+		respBody, _ := json.Marshal(resp)
+
 		// @todo: improve response to return the full shortened url
 		return events.APIGatewayProxyResponse{
 			StatusCode: http.StatusOK,
-			Body:       string(hash),
+			Body:       string(respBody),
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
@@ -101,7 +111,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 func GetUrl(code string, db *dynamodb.DynamoDB) (*model.ShortUrl, error) {
 	params := &dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
-			"shortUrl": {
+			"Hash": {
 				S: aws.String(code),
 			},
 		},

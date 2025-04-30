@@ -79,7 +79,8 @@ Content-Type: application/json
 
 // Response
 {
-  "shortCode": "abc123"
+  "ShortUrl": "http://localhost:4566/abc123",
+  "Hash": "abc123"
 }
 ```
 
@@ -88,7 +89,7 @@ Content-Type: application/json
 ```
 // Request
 
-GET /{shortcode}
+GET /{hash}
 
 Will HTTP 302 Redirect to the original URL.
 ```

@@ -142,11 +142,11 @@ resource "aws_api_gateway_resource" "shorten" {
   path_part   = "shorten"
 }
 
-# Resource for /{shortcode}
+# Resource for /{hash}
 resource "aws_api_gateway_resource" "shortcode" {
   rest_api_id = aws_api_gateway_rest_api.api.id
   parent_id   = aws_api_gateway_rest_api.api.root_resource_id
-  path_part   = "{shortcode}"
+  path_part   = "{hash}"
 }
 
 # POST /shorten method
@@ -157,7 +157,7 @@ resource "aws_api_gateway_method" "post_shorten" {
   authorization = "NONE"
 }
 
-# GET /{shortcode} method
+# GET /{hash} method
 resource "aws_api_gateway_method" "get_redirect" {
   rest_api_id   = aws_api_gateway_rest_api.api.id
   resource_id   = aws_api_gateway_resource.shortcode.id
@@ -175,7 +175,7 @@ resource "aws_api_gateway_integration" "post_shorten_integration" {
   uri                     = aws_lambda_function.url_shortener_lambda.invoke_arn
 }
 
-# Lambda Integration for GET /{shortcode}
+# Lambda Integration for GET /{hash}
 resource "aws_api_gateway_integration" "get_redirect_integration" {
   rest_api_id             = aws_api_gateway_rest_api.api.id
   resource_id             = aws_api_gateway_resource.shortcode.id
