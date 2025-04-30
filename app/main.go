@@ -22,10 +22,6 @@ type ShortenRequest struct {
 	Url string `json:"url"`
 }
 
-type ShortenResponse struct {
-	Shortcode string `json:"shortcode"`
-}
-
 func main() {
 	lambda.Start(handler)
 }
@@ -59,12 +55,10 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			}, nil
 		}
 
-		resp := ShortenResponse{Shortcode: hash}
-		respBody, _ := json.Marshal(resp)
-
+		// @todo: improve response to return the full shortened url
 		return events.APIGatewayProxyResponse{
 			StatusCode: http.StatusOK,
-			Body:       string(respBody),
+			Body:       string(hash),
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
@@ -85,7 +79,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		if err != nil {
 			return events.APIGatewayProxyResponse{
 				StatusCode: http.StatusNotFound,
-				Body:       `{"error":"Shortcode not found"}`,
+				Body:       `{"error":"Uri not found"}`,
 			}, nil
 		}
 
