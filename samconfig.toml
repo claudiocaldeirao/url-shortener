@@ -1,0 +1,9 @@
+version = 0.1
+
+[default.build]
+skip_pull_image = true
+use_container = false
+
+[default.local_start_api]
+skip_pull_image = true
+parameter_overrides = ""

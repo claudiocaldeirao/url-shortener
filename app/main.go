@@ -1,31 +1,109 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
-	"log"
+	"net/http"
 	"os"
+	"strings"
 	"url-shortener/app/config"
 	"url-shortener/app/db"
 	"url-shortener/app/model"
+	"url-shortener/app/utils"
 
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
+type ShortenRequest struct {
+	Url string `json:"url"`
+}
+
+type ShortenResponse struct {
+	Shortcode string `json:"shortcode"`
+}
+
 func main() {
+	lambda.Start(handler)
+}
+
+func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	config.Load()
 	db.Init()
 	db := db.GetDB()
 
-	// @todo: should get code from GET route
-	shortUrl, err := GetUrl("abcedf", db)
+	switch request.HTTPMethod {
+	case "POST":
+		// Handle POST /shorten
+		var req ShortenRequest
+		err := json.Unmarshal([]byte(request.Body), &req)
+		if err != nil || req.Url == "" {
+			return events.APIGatewayProxyResponse{
+				StatusCode: http.StatusBadRequest,
+				Body:       `{"error":"Invalid request body"}`,
+			}, nil
+		}
 
-	if err != nil {
-		log.Println(err)
+		hash := utils.GenerateShortCode()
+		_, err = PostUrl(hash, req.Url, db)
+
+		if err != nil {
+			return events.APIGatewayProxyResponse{
+				StatusCode: http.StatusInternalServerError,
+				Body:       fmt.Sprintf(`{"error": "%s"}`, err.Error()),
+				Headers: map[string]string{
+					"Content-Type": "application/json",
+				},
+			}, nil
+		}
+
+		resp := ShortenResponse{Shortcode: hash}
+		respBody, _ := json.Marshal(resp)
+
+		return events.APIGatewayProxyResponse{
+			StatusCode: http.StatusOK,
+			Body:       string(respBody),
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+			},
+		}, nil
+	case "GET":
+		// Handle GET /{hash}
+		pathParts := strings.Split(strings.Trim(request.Path, "/"), "/")
+		if len(pathParts) != 1 {
+			return events.APIGatewayProxyResponse{
+				StatusCode: http.StatusBadRequest,
+				Body:       `{"error":"Invalid path"}`,
+			}, nil
+		}
+
+		hash := pathParts[0]
+		shortUrl, err := GetUrl(hash, db)
+
+		if err != nil {
+			return events.APIGatewayProxyResponse{
+				StatusCode: http.StatusNotFound,
+				Body:       `{"error":"Shortcode not found"}`,
+			}, nil
+		}
+
+		// Redirect to the original URL
+		return events.APIGatewayProxyResponse{
+			StatusCode: http.StatusMovedPermanently,
+			Headers: map[string]string{
+				"Location": shortUrl.Url,
+			},
+		}, nil
+	default:
+		return events.APIGatewayProxyResponse{
+			StatusCode: http.StatusMethodNotAllowed,
+			Body:       `{"error":"Method not allowed"}`,
+		}, nil
 	}
-
-	fmt.Println(shortUrl)
 }
 
 func GetUrl(code string, db *dynamodb.DynamoDB) (*model.ShortUrl, error) {

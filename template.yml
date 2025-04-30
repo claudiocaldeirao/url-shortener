@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Go Lambda local test with SAM
+Resources:
+  UrlShortenerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: url-shortener-lambda
+      Handler: bootstrap
+      Runtime: provided.al2
+      CodeUri: build
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 10
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /run
+            Method: GET
