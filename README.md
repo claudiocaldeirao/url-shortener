@@ -99,6 +99,12 @@ Will HTTP 302 Redirect to the original URL.
 url-shortener/
 ├── app/             # Go source code
 │   ├── main.go
+│   ├── db
+│   │   └── db.go
+│   ├── model
+│   │   └── ShortUrl.go
+│   ├── config
+│   │   └── config.go
 │   └── utils
 │       └── utils.go # hash method to generate short url
 ├── main.tf          # Terraform AWS resources
