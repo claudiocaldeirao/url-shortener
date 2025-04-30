@@ -10,3 +10,4 @@ terraform.tfstate.backup
 .terraform
 venv
 build
+bin
