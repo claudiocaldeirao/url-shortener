@@ -31,7 +31,7 @@ provider "aws" {
 }
 
 locals {
-  bynary_name  = "bootstrap"
+  binary_name  = "bootstrap"
   src_path     = "${path.module}/app/main.go"
   binary_path  = "${path.module}/build/bootstrap"
   archive_path = "${path.module}/build/lambda.zip"
@@ -72,7 +72,7 @@ resource "aws_iam_role" "lambda_exec_role" {
 # Lambda Function
 resource "aws_lambda_function" "url_shortener_lambda" {
   function_name    = "url-shortener-lambda"
-  handler          = local.bynary_name
+  handler          = local.binary_name
   runtime          = "go1.x"
   source_code_hash = data.archive_file.function_archive.output_base64sha256
   role             = aws_iam_role.lambda_exec_role.arn
@@ -81,10 +81,8 @@ resource "aws_lambda_function" "url_shortener_lambda" {
   environment {
     variables = {
       AWS_DYNAMO_DB_TABLE    = var.dynamodb_table_name
-      AWS_DYNAMO_DB_ENDPOINT = var.dynamobd_endpoint
+      AWS_DYNAMO_DB_ENDPOINT = var.dynamodb_endpoint
       AWS_REGION             = var.region
-      AWS_ACCESS_KEY         = var.aws_access_key
-      AWS_SECRET_KEY         = var.aws_secret_key
     }
   }
 }

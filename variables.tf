@@ -14,6 +14,6 @@ variable "aws_secret_key" {
   default = "aws_secret_key"
 }
 
-variable "dynamobd_endpoint" {
-  default = "http://localhost:4566"
+variable "dynamodb_endpoint" {
+  default = "https://localhost.localstack.cloud:4566"
 }

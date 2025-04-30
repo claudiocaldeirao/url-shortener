@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"url-shortener/app/config"
 	"url-shortener/app/db"
 	"url-shortener/app/model"
 	"url-shortener/app/utils"
@@ -32,7 +31,6 @@ func main() {
 }
 
 func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	config.Load()
 	db.Init()
 	db := db.GetDB()
 
