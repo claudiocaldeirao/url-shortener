@@ -1,0 +1,4 @@
+{
+    "HTTPMethod": "POST",
+    "Body": "{\"url\": \"https://www.google.com\"}"
+}
