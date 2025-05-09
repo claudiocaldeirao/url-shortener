@@ -1,6 +1,6 @@
 APP_NAME = bootstrap
 BUILD_DIR = build
-SRC_FILE = app/main.go
+SRC_FILE = app/cmd/main.go
 
 .PHONY: build-UrlShortenerFunction run clean test-docker
 

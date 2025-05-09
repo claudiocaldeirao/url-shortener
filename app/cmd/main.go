@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"url-shortener/app/db"
-	"url-shortener/app/model"
-	"url-shortener/app/utils"
+	"url-shortener/app/internal/db"
+	"url-shortener/app/internal/model"
+	"url-shortener/app/internal/utils"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"

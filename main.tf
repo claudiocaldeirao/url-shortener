@@ -32,7 +32,7 @@ provider "aws" {
 
 locals {
   binary_name  = "bootstrap"
-  src_path     = "${path.module}/app/main.go"
+  src_path     = "${path.module}/app/cmd/main.go"
   binary_path  = "${path.module}/build/bootstrap"
   archive_path = "${path.module}/build/lambda.zip"
 }
